@@ -86,86 +86,61 @@ main{max-width:1200px;margin:0 auto;padding:24px 20px 64px}
 .hl-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
 .hl-tag{font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.8);font-weight:500}
 
-/* ── PLAYER CARDS ── */
-.player-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;margin-bottom:24px}
+/* ── AGENT LIST ── */
+.agent-list{display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
 
-.player-card{border-radius:16px;overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s;position:relative}
-.player-card:hover{transform:translateY(-3px)}
-.player-card.active .pc-inner{box-shadow:0 0 0 3px rgba(255,255,255,.6) inset}
+.agent-row{border-radius:12px;overflow:hidden;background:#fff;border:1.5px solid var(--border);box-shadow:var(--shadow);transition:border-color .15s,box-shadow .15s}
+.agent-row:hover{border-color:var(--border-strong);box-shadow:var(--shadow-lg)}
+.agent-row.active{border-color:var(--navy)}
 
-/* The card itself is a dark navy gradient with glassmorphism feel */
-.pc-inner{
-  background:linear-gradient(160deg,#0a2454 0%,#002E6E 40%,#0d3a7a 100%);
-  border-radius:16px;
-  overflow:hidden;
-  box-shadow:0 8px 28px rgba(0,20,60,.3),0 2px 8px rgba(0,20,60,.2);
-  border:1px solid rgba(255,255,255,.1);
-  transition:box-shadow .2s;
+.agent-row-header{
+  display:flex;align-items:center;gap:16px;
+  padding:14px 20px;cursor:pointer;
+  user-select:none;
 }
+.ar-grade-bar{width:4px;height:36px;border-radius:2px;flex-shrink:0}
+.ar-avatar{width:38px;height:38px;border-radius:50%;background:var(--navy-light);border:2px solid var(--navy);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--navy);flex-shrink:0}
+.ar-info{flex:1;min-width:0}
+.ar-name{font-size:14px;font-weight:700;color:var(--text);letter-spacing:-.01em}
+.ar-role{font-size:11px;color:var(--text-3);margin-top:1px}
+.ar-month-dots{display:flex;gap:4px;align-items:center;flex-shrink:0}
+.ar-month-dot{width:7px;height:7px;border-radius:50%}
+.ar-month-label{font-size:9px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-right:2px}
+.ar-score{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--navy);letter-spacing:-.02em;line-height:1;min-width:52px;text-align:right;flex-shrink:0}
+.ar-score-pct{font-size:12px;color:var(--text-3);font-weight:500;margin-left:1px}
+.ar-chevron{font-size:14px;color:var(--text-3);transition:transform .2s;flex-shrink:0;margin-left:8px}
+.agent-row.active .ar-chevron{transform:rotate(180deg);color:var(--navy)}
 
-/* Top accent bar — colour by grade */
-.pc-accent{height:4px;width:100%}
+/* ── EXPANDED DETAIL PANEL ── */
+.agent-detail{display:none;border-top:1px solid var(--border)}
+.agent-detail.open{display:block;animation:slideDown .2s ease}
+@keyframes slideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 
-.pc-head{padding:16px 16px 0;display:flex;align-items:flex-start;justify-content:space-between}
-.pc-overall-block{}
-.pc-overall-label{font-size:9px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em}
-.pc-overall-num{font-family:'Bebas Neue',sans-serif;font-size:58px;line-height:1;color:#fff;letter-spacing:-.02em;text-shadow:0 2px 12px rgba(0,0,0,.3)}
-.pc-overall-pct{font-size:14px;color:rgba(255,255,255,.5);font-weight:500;margin-top:-4px}
+.detail-inner{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;padding:20px}
+.detail-col{padding:0 16px}
+.detail-col:first-child{padding-left:4px;border-right:1px solid var(--border)}
+.detail-col:nth-child(2){border-right:1px solid var(--border)}
+.detail-col:last-child{padding-right:4px}
+.detail-col-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);margin-bottom:12px}
 
-.pc-avatar-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
-.pc-avatar{width:52px;height:52px;border-radius:50%;border:2px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:20px;color:#fff}
-.pc-grade-dot{width:10px;height:10px;border-radius:50%;border:2px solid rgba(255,255,255,.3)}
-
-.pc-name{padding:8px 16px 0;font-size:12px;font-weight:700;color:rgba(255,255,255,.9);text-transform:uppercase;letter-spacing:.06em}
-.pc-role{padding:2px 16px 12px;font-size:10px;color:rgba(255,255,255,.4);font-weight:400}
-
-/* Divider */
-.pc-div{height:1px;background:rgba(255,255,255,.08);margin:0 16px}
-
-/* Stats grid */
-.pc-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;padding:12px 8px}
-.pc-stat{display:flex;flex-direction:column;align-items:center;padding:4px 0;position:relative}
-.pc-stat+.pc-stat::before{content:'';position:absolute;left:0;top:25%;height:50%;width:1px;background:rgba(255,255,255,.08)}
-.pc-stat-val{font-family:'Bebas Neue',sans-serif;font-size:22px;color:#fff;line-height:1;text-shadow:0 1px 4px rgba(0,0,0,.2)}
-.pc-stat-name{font-size:8px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
-
-/* Bottom footer row */
-.pc-footer{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:rgba(0,0,0,.2)}
-.pc-footer-left{font-size:11px;color:rgba(255,255,255,.5);font-weight:500}
-.pc-footer-right{display:flex;align-items:center;gap:6px}
-.pc-month-dot{width:6px;height:6px;border-radius:50%}
-.pc-expand-icon{font-size:12px;color:rgba(255,255,255,.35);transition:.2s}
-.player-card.active .pc-expand-icon{transform:rotate(180deg);color:rgba(255,255,255,.7)}
-
-/* ── EXPANDED PANEL ── */
-.pc-expanded{display:none;background:#fff;border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-lg);margin-top:4px;overflow:hidden}
-.pc-expanded.open{display:block;animation:slideDown .2s ease}
-@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-
-.pce-tabs{display:flex;border-bottom:1px solid var(--border)}
-.pce-tab{padding:10px 16px;font-size:12px;font-weight:600;color:var(--text-3);cursor:pointer;border-bottom:2px solid transparent;transition:.15s;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit}
-.pce-tab.active{color:var(--navy);border-bottom-color:var(--navy)}
-
-.pce-content{padding:16px}
-.pce-panel{display:none}
-.pce-panel.active{display:block}
-
-/* Category bars in expanded */
-.pce-cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
-.pce-cat{background:#f8faff;border:1px solid var(--border);border-radius:8px;padding:10px 12px}
-.pce-cat-name{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:6px}
-.pce-cat-row{display:flex;align-items:center;gap:8px}
-.pce-cat-num{font-size:18px;font-weight:800;min-width:28px;letter-spacing:-.02em}
-.pce-cat-bar{flex:1;height:4px;background:#e2e8f0;border-radius:2px;overflow:hidden}
-.pce-cat-fill{height:100%;border-radius:2px}
+/* Category bars */
+.dc-cat{margin-bottom:10px}
+.dc-cat-name{font-size:11px;font-weight:600;color:var(--text-2);margin-bottom:4px;display:flex;justify-content:space-between;align-items:center}
+.dc-cat-score{font-size:11px;font-weight:800;min-width:24px;text-align:right}
+.dc-cat-track{height:5px;background:#e2e8f0;border-radius:3px;overflow:hidden}
+.dc-cat-fill{height:100%;border-radius:3px;transition:width .4s ease}
 
 /* Observations */
-.pce-obs-list{display:flex;flex-direction:column;gap:10px}
-.pce-obs-item{display:flex;gap:12px;align-items:flex-start}
-.pce-obs-month{font-size:11px;font-weight:700;color:#fff;background:var(--navy);padding:3px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0;margin-top:1px}
-.pce-obs-month.empty{background:var(--border);color:var(--text-3)}
-.pce-obs-text{font-size:13px;color:var(--text-2);line-height:1.6}
-.pce-obs-text.empty{color:var(--text-3);font-style:italic}
+.obs-item{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px}
+.obs-tag{font-size:10px;font-weight:700;color:#fff;background:var(--navy);padding:2px 8px;border-radius:10px;white-space:nowrap;flex-shrink:0;margin-top:2px;letter-spacing:.04em}
+.obs-tag.empty{background:var(--border);color:var(--text-3)}
+.obs-text{font-size:12px;color:var(--text-2);line-height:1.55}
+.obs-text.empty{color:var(--text-3);font-style:italic;font-size:11px}
+
+/* Summary */
+.summary-block{background:var(--navy-faint);border:1px solid #c5d0e8;border-radius:8px;padding:14px;font-size:12.5px;color:var(--text-2);line-height:1.65}
+.summary-grade-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.summary-grade-chip{font-size:10px;font-weight:600;padding:3px 8px;border-radius:8px}
 
 /* ── TEAM CATS ── */
 .team-cats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-bottom:28px}
@@ -287,8 +262,8 @@ tr:hover td{background:#f8faff}
 
   <!-- AGENTS -->
   <div class="tab-panel" id="tab-agents">
-    <div class="sec-label">Click a card to expand category breakdown and observations</div>
-    <div class="player-grid" id="playerGrid"></div>
+    <div class="sec-label">Click a row to expand — categories, monthly observations, and H1 summary</div>
+    <div class="agent-list" id="agentList"></div>
     <div class="sec-label" style="margin-top:8px">Team category averages</div>
     <div class="team-cats-grid" id="teamCatsGrid"></div>
   </div>
@@ -644,117 +619,125 @@ function renderHighlight(tickets){
   </div>`;
 }
 
+function autoSummary(agent, tickets){
+  const avg=Math.round(tickets.reduce((s,t)=>s+t.pct,0)/tickets.length);
+  const months=MONTHS.filter(m=>tickets.some(t=>t.month===m));
+  const passing=months.filter(m=>{
+    const mt=tickets.filter(t=>t.month===m);
+    return mt.length && Math.round(mt.reduce((s,t)=>s+t.pct,0)/mt.length)>=90;
+  });
+  const catAvgs=CATS.map((c,i)=>({name:c,avg:tickets.reduce((s,t)=>s+t.scores[i],0)/tickets.length}));
+  const strong=catAvgs.filter(c=>c.avg>=4.5).map(c=>c.name);
+  const weak=catAvgs.filter(c=>c.avg<4).sort((a,b)=>a.avg-b.avg).map(c=>c.name);
+  const firstName=agent.split(' ')[0];
+  let summary=`${firstName} averaged ${avg}% across ${tickets.length} reviewed ticket${tickets.length>1?'s':''} over ${months.length} month${months.length>1?'s':''}, with ${passing.length} of ${months.length} month${months.length>1?'s':''} hitting the 90% threshold. `;
+  if(strong.length) summary+=`Consistently strong in ${strong.slice(0,2).join(' and ')}. `;
+  if(weak.length) summary+=`Primary coaching focus: ${weak[0]}${weak[1]?' and '+weak[1]:''}. `;
+  if(months.length>=3){
+    const scores=months.map(m=>{const mt=tickets.filter(t=>t.month===m);return Math.round(mt.reduce((s,t)=>s+t.pct,0)/mt.length);});
+    const first=scores[0],last=scores[scores.length-1];
+    if(last-first>=5) summary+='Trend is improving across the review period.';
+    else if(first-last>=5) summary+='Scores have dipped across the review period — worth monitoring.';
+    else summary+='Performance has been consistent across the review period.';
+  }
+  return summary;
+}
+
 function renderAgents(tickets){
   const agents=[...new Set(tickets.map(t=>t.agent))];
-  const grid=document.getElementById('playerGrid');
-  if(!agents.length){grid.innerHTML='<p style="color:var(--text-3);padding:20px">No data for this period.</p>';return;}
+  const list=document.getElementById('agentList');
+  if(!agents.length){list.innerHTML='<p style="color:var(--text-3);padding:20px">No data for this period.</p>';return;}
 
-  grid.innerHTML=agents.map(agent=>{
+  list.innerHTML=agents.map(agent=>{
     const at=tickets.filter(t=>t.agent===agent);
     const avg=Math.round(at.reduce((s,t)=>s+t.pct,0)/at.length);
-    const catAvgs=CATS.map((c,i)=>Math.round(at.reduce((s,t)=>s+t.scores[i],0)/at.length));
+    const catAvgs=CATS.map((c,i)=>({name:c,avg:at.reduce((s,t)=>s+t.scores[i],0)/at.length}));
     const meta=AGENT_META[agent]||{role:'Support',initials:agent.split(' ').map(w=>w[0]).join('').substring(0,2),dept:''};
-    const gc=gradeColor2(avg);
+    const gc=gradeColor(avg);
     const isOpen=openAgent===agent;
 
-    // Month dots
     const monthDots=MONTHS.map(m=>{
       const mt=at.filter(t=>t.month===m);
-      if(!mt.length) return `<div class="pc-month-dot" style="background:rgba(255,255,255,.12)"></div>`;
+      if(!mt.length) return `<div class="ar-month-dot" style="background:#e2e8f0" title="${m}: no data"></div>`;
       const mavg=Math.round(mt.reduce((s,t)=>s+t.pct,0)/mt.length);
-      return `<div class="pc-month-dot" style="background:${gradeColor2(mavg)}" title="${m}: ${mavg}%"></div>`;
+      return `<div class="ar-month-dot" style="background:${gradeColor(mavg)}" title="${m}: ${mavg}%"></div>`;
     }).join('');
 
-    // Expanded panel HTML
+    const catsHTML=catAvgs.map(c=>{
+      const col=catColor(c.avg);
+      return `<div class="dc-cat">
+        <div class="dc-cat-name"><span>${c.name}</span><span class="dc-cat-score" style="color:${col}">${c.avg.toFixed(1)}</span></div>
+        <div class="dc-cat-track"><div class="dc-cat-fill" style="width:${c.avg/5*100}%;background:${col}"></div></div>
+      </div>`;
+    }).join('');
+
     const obs=OBSERVATIONS[agent]||{};
-    const obsHTML=MONTHS.map(m=>{
+    const obsItems=MONTHS.map(m=>{
       const hasObs=obs[m]&&obs[m]!==null;
-      return `<div class="pce-obs-item">
-        <span class="pce-obs-month${hasObs?'':' empty'}">${m}</span>
-        <span class="pce-obs-text${hasObs?'':' empty'}">${hasObs?obs[m]:'No observation recorded yet'}</span>
+      const mt=at.filter(t=>t.month===m);
+      if(!mt.length&&!hasObs) return '';
+      return `<div class="obs-item">
+        <span class="obs-tag${hasObs?'':' empty'}">${m}</span>
+        <span class="obs-text${hasObs?'':' empty'}">${hasObs?obs[m]:'No data this period'}</span>
       </div>`;
     }).join('');
 
-    const catsHTML=CATS.map((c,i)=>{
-      const col=catColor(catAvgs[i]);
-      return `<div class="pce-cat">
-        <div class="pce-cat-name">${c}</div>
-        <div class="pce-cat-row">
-          <div class="pce-cat-num" style="color:${col}">${catAvgs[i]}</div>
-          <div class="pce-cat-bar"><div class="pce-cat-fill" style="width:${catAvgs[i]/5*100}%;background:${col}"></div></div>
-          <div style="font-size:10px;color:var(--text-3);min-width:20px;text-align:right">/ 5</div>
-        </div>
-      </div>`;
+    const summary=autoSummary(agent,at);
+    const monthGrades=MONTHS.filter(m=>at.some(t=>t.month===m)).map(m=>{
+      const mt=at.filter(t=>t.month===m);
+      const mavg=Math.round(mt.reduce((s,t)=>s+t.pct,0)/mt.length);
+      return `<span class="summary-grade-chip" style="background:${gradeColor(mavg)}22;color:${gradeColor(mavg)}">${m} ${mavg}%</span>`;
     }).join('');
 
-    const panelTab=agentPanelTab[agent]||'cats';
-
-    return `<div>
-      <div class="player-card${isOpen?' active':''}" onclick="toggleAgent('${agent}')">
-        <div class="pc-inner">
-          <div class="pc-accent" style="background:${gc}"></div>
-          <div class="pc-head">
-            <div class="pc-overall-block">
-              <div class="pc-overall-label">Overall</div>
-              <div class="pc-overall-num">${avg}</div>
-              <div class="pc-overall-pct">out of 100</div>
-            </div>
-            <div class="pc-avatar-wrap">
-              <div class="pc-avatar">${meta.initials}</div>
-              <div class="pc-grade-dot" style="background:${gc}"></div>
-            </div>
-          </div>
-          <div class="pc-name">${agent}</div>
-          <div class="pc-role">${meta.role} · ${meta.dept}</div>
-          <div class="pc-div"></div>
-          <div class="pc-stats">
-            ${catAvgs.slice(0,4).map((v,i)=>`<div class="pc-stat"><div class="pc-stat-val">${v}</div><div class="pc-stat-name">${CSHORT[i]}</div></div>`).join('')}
-          </div>
-          <div class="pc-div"></div>
-          <div class="pc-stats" style="grid-template-columns:repeat(3,1fr)">
-            ${catAvgs.slice(4).map((v,i)=>`<div class="pc-stat"><div class="pc-stat-val">${v}</div><div class="pc-stat-name">${CSHORT[i+4]}</div></div>`).join('')}
-          </div>
-          <div class="pc-footer">
-            <span class="pc-footer-left">${at.length} tickets · ${at.filter(t=>t.pct>=90).length} green</span>
-            <div class="pc-footer-right">
-              ${monthDots}
-              <span class="pc-expand-icon">▾</span>
-            </div>
-          </div>
+    return `<div class="agent-row${isOpen?' active':''}" id="ar-${agent.replace(/\s/g,'_')}">
+      <div class="agent-row-header" onclick="toggleAgent('${agent}')">
+        <div class="ar-grade-bar" style="background:${gc}"></div>
+        <div class="ar-avatar">${meta.initials}</div>
+        <div class="ar-info">
+          <div class="ar-name">${agent}</div>
+          <div class="ar-role">${meta.role} · ${meta.dept}</div>
         </div>
+        <div class="ar-month-dots">
+          <span class="ar-month-label">J F M A M J</span>
+          ${monthDots}
+        </div>
+        <div class="ar-score">${avg}<span class="ar-score-pct">%</span></div>
+        <div class="ar-chevron">&#9660;</div>
       </div>
-      <div class="pc-expanded${isOpen?' open':''}" id="exp-${agent.replace(/\s/g,'_')}">
-        <div class="pce-tabs">
-          <button class="pce-tab${panelTab==='cats'?' active':''}" onclick="switchPanelTab('${agent}','cats',this)">Categories</button>
-          <button class="pce-tab${panelTab==='obs'?' active':''}" onclick="switchPanelTab('${agent}','obs',this)">Observations</button>
-        </div>
-        <div class="pce-content">
-          <div class="pce-panel${panelTab==='cats'?' active':''}" id="pcat-${agent.replace(/\s/g,'_')}">
-            <div class="pce-cats">${catsHTML}</div>
+      <div class="agent-detail${isOpen?' open':''}" id="det-${agent.replace(/\s/g,'_')}">
+        <div class="detail-inner">
+          <div class="detail-col">
+            <div class="detail-col-title">Category breakdown</div>
+            ${catsHTML}
           </div>
-          <div class="pce-panel${panelTab==='obs'?' active':''}" id="pobs-${agent.replace(/\s/g,'_')}">
-            <div class="pce-obs-list">${obsHTML}</div>
+          <div class="detail-col">
+            <div class="detail-col-title">Monthly observations</div>
+            ${obsItems||'<p style="font-size:12px;color:var(--text-3);font-style:italic">No observations recorded</p>'}
+          </div>
+          <div class="detail-col">
+            <div class="detail-col-title">H1 summary</div>
+            <div class="summary-block">
+              ${summary}
+              <div class="summary-grade-row">${monthGrades}</div>
+            </div>
           </div>
         </div>
       </div>
     </div>`;
   }).join('');
 }
-
 function toggleAgent(agent){
   openAgent = openAgent===agent ? null : agent;
   renderAgents(filterTickets());
+  if(openAgent){
+    setTimeout(()=>{
+      const el=document.getElementById('ar-'+agent.replace(/\s/g,'_'));
+      if(el) el.scrollIntoView({behavior:'smooth',block:'nearest'});
+    },60);
+  }
 }
 
-function switchPanelTab(agent,tab,btn){
-  event.stopPropagation();
-  agentPanelTab[agent]=tab;
-  const key=agent.replace(/\s/g,'_');
-  document.querySelectorAll(`#exp-${key} .pce-tab`).forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll(`#exp-${key} .pce-panel`).forEach(p=>p.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById(`p${tab==='cats'?'cat':'obs'}-${key}`).classList.add('active');
-}
+
 
 function renderTeamCats(tickets){
   const catAvgs=CATS.map((c,i)=>({name:c,avg:tickets.length?tickets.reduce((s,t)=>s+t.scores[i],0)/tickets.length:0}));
