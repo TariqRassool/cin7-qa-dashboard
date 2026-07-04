@@ -116,11 +116,11 @@ main{max-width:1200px;margin:0 auto;padding:24px 20px 64px}
 .agent-detail.open{display:block;animation:slideDown .2s ease}
 @keyframes slideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 
-.detail-inner{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;padding:20px}
+.detail-inner{display:grid;grid-template-columns:1fr 2fr;gap:0;padding:20px;grid-template-areas:'cats obs' 'summary summary'}
 .detail-col{padding:0 16px}
-.detail-col:first-child{padding-left:4px;border-right:1px solid var(--border)}
-.detail-col:nth-child(2){border-right:1px solid var(--border)}
-.detail-col:last-child{padding-right:4px}
+.detail-col:first-child{padding-left:4px;border-right:1px solid var(--border);grid-area:cats}
+.detail-col.obs-col{grid-area:obs;padding-right:4px}
+.detail-col.summary-col{grid-area:summary;padding:16px 4px 0;border-top:1px solid var(--border);margin-top:16px}
 .detail-col-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);margin-bottom:12px}
 
 /* Category bars */
@@ -254,9 +254,53 @@ tr:hover td{background:#f8faff}
     <div class="sec-label">Agent of the period</div>
     <div id="hlWrap" style="margin-bottom:24px"></div>
     <div class="sec-label">Quality trend</div>
-    <div class="chart-card">
+    <div class="chart-card" style="margin-bottom:24px">
       <div class="chart-title">Quality score by agent — month on month</div>
       <div style="position:relative;height:260px"><canvas id="ovTrendChart" aria-label="Quality trend chart">Chart.</canvas></div>
+    </div>
+
+    <div class="sec-label">Sampling & selection criteria</div>
+    <div style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;box-shadow:var(--shadow)">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:10px">How tickets are sampled</div>
+          <div style="font-size:12px;color:var(--text-2);line-height:1.7">
+            Each agent's monthly solved and closed tickets are sampled at approximately <strong>11% of monthly volume</strong>, with a minimum of 3 and a maximum of 8 tickets per month. Tickets with no agent replies are excluded.<br><br>
+            Tickets are prioritised in the following order:
+          </div>
+          <ol style="font-size:12px;color:var(--text-2);line-height:1.9;margin-top:8px;padding-left:18px">
+            <li>Bad CSAT (rating below 5)</li>
+            <li>Slow FRT (&gt;24 hrs) + High Complexity (8+ replies)</li>
+            <li>Slow FRT alone</li>
+            <li>High Complexity alone</li>
+            <li>Medium Complexity (4–7 replies)</li>
+            <li>Short tickets (1–3 replies)</li>
+          </ol>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--navy);margin-bottom:10px">Scoring framework</div>
+          <div style="font-size:12px;color:var(--text-2);line-height:1.7;margin-bottom:12px">
+            Two scorecard versions are in use depending on ticket date:
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="background:var(--navy-faint);border:1px solid #c5d0e8;border-radius:8px;padding:10px 14px">
+              <div style="font-size:11px;font-weight:700;color:var(--navy)">Pre-20 May 2026 — 35 points</div>
+              <div style="font-size:11px;color:var(--text-3);margin-top:2px">7 categories × 5 pts · Pass threshold: 32/35 (90%)</div>
+            </div>
+            <div style="background:var(--navy-faint);border:1px solid #c5d0e8;border-radius:8px;padding:10px 14px">
+              <div style="font-size:11px;font-weight:700;color:var(--navy)">Post-20 May 2026 — 55 points</div>
+              <div style="font-size:11px;color:var(--text-3);margin-top:2px">7 base + 4 MFR categories × 5 pts · Pass threshold: 50/55 (90%)</div>
+            </div>
+          </div>
+          <div style="font-size:12px;font-weight:700;color:var(--navy);margin:14px 0 8px">Grade thresholds</div>
+          <div style="display:flex;flex-direction:column;gap:5px">
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-2)"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#22c55e;flex-shrink:0"></span>Green — ≥ 90%</div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-2)"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#f59e0b;flex-shrink:0"></span>Amber — 79–89%</div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-2)"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#f97316;flex-shrink:0"></span>Orange — 65–78%</div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-2)"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;flex-shrink:0"></span>Red — &lt; 65%</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -709,17 +753,15 @@ function renderAgents(tickets){
           <div class="detail-col">
             <div class="detail-col-title">Category breakdown</div>
             ${catsHTML}
-          </div>
-          <div class="detail-col">
-            <div class="detail-col-title">Monthly observations</div>
-            ${obsItems||'<p style="font-size:12px;color:var(--text-3);font-style:italic">No observations recorded</p>'}
-          </div>
-          <div class="detail-col">
-            <div class="detail-col-title">H1 summary</div>
+            <div class="detail-col-title" style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">H1 summary</div>
             <div class="summary-block">
               ${summary}
               <div class="summary-grade-row">${monthGrades}</div>
             </div>
+          </div>
+          <div class="detail-col obs-col">
+            <div class="detail-col-title">Monthly observations</div>
+            ${obsItems||'<p style="font-size:12px;color:var(--text-3);font-style:italic">No observations recorded</p>'}
           </div>
         </div>
       </div>
