@@ -1,200 +1,507 @@
-const AGENT_META = {
-  'Somaskaran Paramanantham':{role:'Sr. Tech Support → SME',initials:'SP',dept:'API · Reporting · Automation'},
-  'Shayanthi Rameswaram':{role:'Partner & Premium Support',initials:'SR',dept:'Partner Support'},
-  'Praveen Nanayakkara':{role:'SME — Integrations',initials:'PN',dept:'Shopify · Amazon · WooCommerce'},
-  'Irfan Raheem':{role:'SME — Integrations (US timezone)',initials:'IR',dept:'Shopify · QBO · eBay · ShipStation'},
-  'Geethanjali Chanthirasegaran':{role:'SME — Base Modules',initials:'GC',dept:'Sales · Purchases · Inventory · BOM'},
-  'Shane Colombage':{role:'SME — Accounting & Production',initials:'SC',dept:'QBO · Xero · Manufacturing'},
-  'Abinesh Jayarajan':{role:'Partner & Premium Manager',initials:'AJ',dept:'Partner Support · Individual Contributor'},
-  'Husni Ghaffari':{role:'SME — B2B, POS, WMS & Shipping',initials:'HG',dept:'B2B Portal · WMS · POS · Shipping'},
-  'Aqeela Raheem':{role:'SME — Integrations',initials:'AR',dept:'Shopify · Magento · QBO'},
-};
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cin7 Core — Team Quality Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="data.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#002E6E;--navy-mid:#1a4a8a;--navy-light:#E6EBF5;
+  --bg:#EEF2FA;--white:#fff;--border:#D5DCEA;--border-strong:#b8c4d8;
+  --text:#0f1f3d;--text-2:#4a5568;--text-3:#8492a6;
+  --shadow:0 1px 4px rgba(0,46,110,.08),0 4px 16px rgba(0,46,110,.05);
+  --shadow-lg:0 8px 32px rgba(0,46,110,.15);
+  --radius:12px;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;min-height:100vh}
 
-const OBSERVATIONS = {
-  'Somaskaran Paramanantham':{
-    Jan:'Strong across all categories from the outset — consistently demonstrates SME-level product knowledge in API, Reporting, and Automation. Independent pre-response testing is a standout behaviour.',
-    Feb:'A dip this month driven by weaker Solution Offered scores on two tickets (#269759, #273996). Communication and Foundations remain solid. Coaching focus: ensure every escalation includes a concrete resolution path.',
-    Mar:'Bounced back strongly — two perfect-score tickets this month. Proactive call scheduling and authoritative technical diagnosis are hallmarks of his responses.',
-    Apr:'Consistent pass. Empathy continues to be the one category not reaching 5 consistently — urgency acknowledgment before technical responses would push this higher.',
-    May:'Another solid month including a perfect score (#300070). Holding updates on the FSAI ticket (#298549) are becoming formulaic — more specific progress updates would differentiate.',
-    Jun:'Strong finish to H1. Two passing months on the expanded 55-point MFR scorecard. Thread ownership and first-person language are consistently excellent.',
-    Jul:null,
-  },
-  'Shayanthi Rameswaram':{
-    Jan:'Empathy is the primary gap this month — responses acknowledge issues but miss the emotional acknowledgment customers need when frustrated. Thread-dropping during escalations also flagged.',
-    Feb:'Marginal improvement in empathy across the month. Foundations strong — paraphrasing and full query coverage are consistent. Solution Offered showing some gaps when escalation paths are unclear.',
-    Mar:'Best month so far — one excellent ticket (#282730) at 97%. Empathy improving noticeably. Thread continuity during escalations remains the key coaching point.',
-    Apr:'Only passing month of H1 at 92.4%. Empathy has improved consistently since January. Escalation handling still the ceiling — thread-dropping when handing off remains the primary gap.',
-    May:'Dipped back below threshold. Empathy improvement from April did not sustain — particularly on tickets with frustrated customers. Escalation thread continuity gap persisting.',
-    Jun:'June shows mixed results on the expanded scorecard. MFR categories expose gaps in first-reply ownership and next-step specificity. Continued coaching needed on escalation handling.',
-    Jul:'Improvement from June — four amber tickets and no red. Backline documentation quality remains consistently strong. Thread continuity gap is closing: #317280 and #321083 both show Shayanthi relaying SME answers back to customers. The one habit that continues to lift scores: relay internal SME answers to the customer before the thread auto-closes.',
-  },
-  'Praveen Nanayakkara':{
-    Jan:'Integration module knowledge is strong across Shopify, Walmart, and WooCommerce. Recurring gap: thread continuity — two tickets where prior context was missed before entering. Empathy acknowledgment on long-running issues also needs development.',
-    Feb:null,Mar:null,Apr:null,May:null,
-    Jun:'Two scoreable tickets this period. Shopify POS (#307642) highlighted composure under extreme customer pressure — a genuine strength. Amazon FBA (#309353) showed authoritative diagnosis. MFR next steps remain the consistent gap across both tickets.',
-    Jul:null,
-  },
-  'Irfan Raheem':{
-    Jan:null,Feb:null,Mar:null,Apr:null,May:null,
-    Jun:'Standout month — perfect score on #310705 demonstrates exceptional pre-implementation support depth across QBO and Shopify. Cross-module capability (eBay, ShipStation, QBO) is strong. Primary structural gap: frontline MFR suppression before Irfan enters threads. Where he owns the MFR himself, scores are consistently 90%+.',
-    Jul:null,
-  },
-  'Geethanjali Chanthirasegaran':{
-    Jan:null,Feb:null,Mar:null,Apr:null,May:null,
-    Jun:'Strong base-module product knowledge throughout — BOM WIP account diagnosis, inventory import duplicate detection, and WooCommerce void order mechanics all delivered with SME authority. Primary coaching gap: holding responses when a Jira is raised need more substance — Jira confirmation, one observed finding, and a next-update timeframe would meaningfully lift scores. SME mentoring behaviour noted (#311259 coaching note to Aishwarya).',
-    Jul:null,
-  },
-  'Shane Colombage':{
-    Jan:null,Feb:null,Mar:null,Apr:null,May:null,
-    Jun:'Proactive QBID bug outreach (#309557–66) is the highlight — identifying affected customers and drafting structured remediation communications before complaints arrived is exemplary SME initiative. QBO and Xero accounting knowledge is consistently deep. Recurring gap: first responses on Engineering-dependent tickets default to identical holding language. Coaching focus: one sentence of observed findings before "working with engineers" would differentiate each response.',
-    Jul:null,
-  },
-  'Abinesh Jayarajan':{
-    Jan:'Accuracy is present but responses are frequently generic — KB article redirects and call requests in place of direct answers. Three bad CSAT tickets this month reflect customers receiving less than they needed. Template opener ("I hope this message finds you in good health") appears across all responses.',
-    Feb:'Marginal improvement — feature limitation answers are clean and direct. However the Xero credit note ticket showed a misread of the customer\'s dual-issue question, leading to an unnecessary loop. Template opener persists.',
-    Mar:'Best month so far in Jan–Mar. FIFO costing change (#280001) and BOM relay (#281763) show Abinesh at his best — structured, accurate, and confident when relaying SME guidance. Template opener still present.',
-    Apr:'Dip back into lower orange. Generic escalation template reappears on #284673 and #296495 — strong backline notes paired with formulaic customer responses. Escalating to correct SMEs is appropriate for the role.',
-    May:'Clear improvement — four of five tickets hit 80%+. Independent account investigation on #298533 and #300081 shows growing confidence. Template opener frequency is decreasing. Closest to amber yet.',
-    Jun:'First amber month. Tone has improved noticeably — no "I hope this message finds you in good health" visible. Partner communication is becoming more direct and collegial.',
-    Jul:'Strongest month of the year. #320327 is a standout — independent COGS/invoice timing diagnosis without escalation. Template opener entirely absent. Consistent upward trend from May onward is now clear.',
-  },
-  'Husni Ghaffari':{
-    Jan:'Exceptional month — 96.2% average across three complex tickets. WMS and POS module knowledge is clearly at SME level. Offering Simona control over update frequency (#262283) is a standout empathy moment worth sharing as a positive example. Only gap: not always opening with explicit business impact acknowledgment before diagnosis.',
-    Feb:null,Mar:null,Apr:null,May:null,
-    Jun:'B2B Portal and WMS module knowledge is excellent — SSL certificate binding diagnosis and CIN7 Pay surcharge root cause identification both show deep SME understanding. June average of 89% narrowly misses threshold due to structural MFR suppression from frontline handling early rounds. Where Husni owns the thread from entry, quality is consistently 90%+.',
-    Jul:null,
-  },
-  'Aqeela Raheem':{
-    Jan:null,Feb:null,Mar:null,Apr:null,
-    May:'Best month of the year — 91.3% average, two passing tickets. Amazon FBA setup guidance (#304228) is a standout: multi-step, technically precise across a long thread. Shopify lock date override (#307267) shows deep understanding of updated_at vs created_at sync logic. Demonstrates what Aqeela is capable of when driving the thread from the start.',
-    Jun:'Dipped to amber at 82.3%. Strong on tickets she owns fully (#309006, #309434) but Engineering-pending tickets (#310305, #310604) show the follow-through gap. Coaching focus: proactive 24-hour customer update when a ticket is with Engineering, regardless of whether Engineering has responded.',
-    Jul:null,
-  },
-};
+/* ── HEADER ── */
+.hdr{background:var(--navy);height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:200}
+.hdr-left{display:flex;align-items:center;gap:10px}
+.hdr-logo{width:30px;height:30px;background:#fff;border-radius:7px;display:flex;align-items:center;justify-content:center}
+.hdr-logo svg{width:16px;height:16px}
+.hdr h1{color:#fff;font-size:15px;font-weight:600;letter-spacing:-.01em}
+.hdr h1 span{color:rgba(255,255,255,.4);font-weight:400}
 
-const ALL_TICKETS = [
-  // ── SOMASKARAN PARAMANANTHAM ──────────────────────────────────────
-  {id:'#260294+#194140',agent:'Somaskaran Paramanantham',month:'Jan',date:'2026-01-09',scores:[5,5,4,5,5,5,4],mfr:false,mfrScore:0,total:33,max:35,pct:94},
-  {id:'#267806',agent:'Somaskaran Paramanantham',month:'Jan',date:'2026-01-29',scores:[5,5,4,5,5,5,5],mfr:false,mfrScore:0,total:34,max:35,pct:97},
-  {id:'#266339',agent:'Somaskaran Paramanantham',month:'Jan',date:'2026-01-23',scores:[4,4,5,5,4,4,5],mfr:false,mfrScore:0,total:31,max:35,pct:89},
-  {id:'#261828',agent:'Somaskaran Paramanantham',month:'Jan',date:'2026-01-09',scores:[5,5,4,5,5,5,5],mfr:false,mfrScore:0,total:34,max:35,pct:97},
-  {id:'#272766',agent:'Somaskaran Paramanantham',month:'Feb',date:'2026-02-11',scores:[4,4,4,4,4,4,5],mfr:false,mfrScore:0,total:29,max:35,pct:83},
-  {id:'#276171',agent:'Somaskaran Paramanantham',month:'Feb',date:'2026-02-20',scores:[4,4,4,4,4,4,5],mfr:false,mfrScore:0,total:29,max:35,pct:83},
-  {id:'#276973',agent:'Somaskaran Paramanantham',month:'Feb',date:'2026-02-24',scores:[4,5,4,5,5,4,5],mfr:false,mfrScore:0,total:32,max:35,pct:91},
-  {id:'#269759',agent:'Somaskaran Paramanantham',month:'Feb',date:'2026-02-04',scores:[4,4,4,5,4,3,5],mfr:false,mfrScore:0,total:29,max:35,pct:83},
-  {id:'#273996',agent:'Somaskaran Paramanantham',month:'Feb',date:'2026-02-14',scores:[5,5,4,5,5,3,5],mfr:false,mfrScore:0,total:32,max:35,pct:91},
-  {id:'#281023',agent:'Somaskaran Paramanantham',month:'Mar',date:'2026-03-06',scores:[5,5,4,5,5,5,5],mfr:false,mfrScore:0,total:34,max:35,pct:97},
-  {id:'#282878',agent:'Somaskaran Paramanantham',month:'Mar',date:'2026-03-12',scores:[5,5,4,5,5,4,5],mfr:false,mfrScore:0,total:33,max:35,pct:94},
-  {id:'#280793',agent:'Somaskaran Paramanantham',month:'Mar',date:'2026-03-06',scores:[5,5,4,5,5,5,5],mfr:false,mfrScore:0,total:34,max:35,pct:97},
-  {id:'#281665',agent:'Somaskaran Paramanantham',month:'Apr',date:'2026-04-10',scores:[4,4,4,4,4,4,5],mfr:false,mfrScore:0,total:29,max:35,pct:83},
-  {id:'#291511',agent:'Somaskaran Paramanantham',month:'Apr',date:'2026-04-09',scores:[5,5,4,4,5,5,5],mfr:false,mfrScore:0,total:33,max:35,pct:94},
-  {id:'#293904',agent:'Somaskaran Paramanantham',month:'Apr',date:'2026-04-16',scores:[4,4,4,4,5,4,5],mfr:false,mfrScore:0,total:30,max:35,pct:86},
-  {id:'#292370',agent:'Somaskaran Paramanantham',month:'Apr',date:'2026-04-13',scores:[5,5,5,5,5,5,5],mfr:false,mfrScore:0,total:35,max:35,pct:100},
-  {id:'#298348',agent:'Somaskaran Paramanantham',month:'May',date:'2026-05-01',scores:[4,5,4,4,5,4,5],mfr:false,mfrScore:0,total:31,max:35,pct:89},
-  {id:'#300875',agent:'Somaskaran Paramanantham',month:'May',date:'2026-05-11',scores:[5,5,4,5,5,4,5],mfr:false,mfrScore:0,total:33,max:35,pct:94},
-  {id:'#298549',agent:'Somaskaran Paramanantham',month:'May',date:'2026-05-04',scores:[4,5,4,5,5,4,4],mfr:false,mfrScore:0,total:31,max:35,pct:89},
-  {id:'#300070',agent:'Somaskaran Paramanantham',month:'May',date:'2026-05-07',scores:[5,5,5,5,5,4,5],mfr:false,mfrScore:0,total:34,max:35,pct:97},
-  {id:'#309463',agent:'Somaskaran Paramanantham',month:'Jun',date:'2026-06-04',scores:[5,5,4,4,5,4,5],mfr:true,mfrScore:18,total:50,max:55,pct:91},
-  {id:'#310310',agent:'Somaskaran Paramanantham',month:'Jun',date:'2026-06-08',scores:[4,5,4,4,5,5,5],mfr:true,mfrScore:17,total:48,max:55,pct:87},
-  {id:'#310321',agent:'Somaskaran Paramanantham',month:'Jun',date:'2026-06-08',scores:[5,5,5,5,5,5,5],mfr:true,mfrScore:20,total:55,max:55,pct:100},
-  {id:'#307483',agent:'Somaskaran Paramanantham',month:'Jun',date:'2026-06-01',scores:[5,5,4,4,5,5,5],mfr:true,mfrScore:19,total:51,max:55,pct:93},
-  // ── SHAYANTHI RAMESWARAM ──────────────────────────────────────────
-  {id:'#262152+#252303',agent:'Shayanthi Rameswaram',month:'Jan',date:'2026-01-01',scores:[4,4,2,5,5,4,5],mfr:false,mfrScore:0,total:29,max:35,pct:83},
-  {id:'#268422',agent:'Shayanthi Rameswaram',month:'Jan',date:'2026-01-15',scores:[5,5,1,5,2,5,5],mfr:false,mfrScore:0,total:28,max:35,pct:80},
-  {id:'#260571',agent:'Shayanthi Rameswaram',month:'Jan',date:'2026-01-08',scores:[4,5,2,4,2,4,5],mfr:false,mfrScore:0,total:26,max:35,pct:74},
-  {id:'#271764',agent:'Shayanthi Rameswaram',month:'Feb',date:'2026-02-03',scores:[4,4,2,4,4,4,5],mfr:false,mfrScore:0,total:27,max:35,pct:77},
-  {id:'#272120',agent:'Shayanthi Rameswaram',month:'Feb',date:'2026-02-05',scores:[4,4,3,4,4,4,5],mfr:false,mfrScore:0,total:28,max:35,pct:80},
-  {id:'#272903',agent:'Shayanthi Rameswaram',month:'Feb',date:'2026-02-10',scores:[4,4,3,4,4,5,4],mfr:false,mfrScore:0,total:28,max:35,pct:80},
-  {id:'#278877',agent:'Shayanthi Rameswaram',month:'Feb',date:'2026-02-20',scores:[4,4,4,4,4,4,5],mfr:false,mfrScore:0,total:29,max:35,pct:83},
-  {id:'#278742',agent:'Shayanthi Rameswaram',month:'Feb',date:'2026-02-20',scores:[4,4,4,4,3,4,5],mfr:false,mfrScore:0,total:28,max:35,pct:80},
-  {id:'#282730',agent:'Shayanthi Rameswaram',month:'Mar',date:'2026-03-10',scores:[5,5,4,5,5,5,5],mfr:false,mfrScore:0,total:34,max:35,pct:97},
-  {id:'#285765',agent:'Shayanthi Rameswaram',month:'Mar',date:'2026-03-20',scores:[4,4,3,4,4,5,4],mfr:false,mfrScore:0,total:28,max:35,pct:80},
-  {id:'#290033',agent:'Shayanthi Rameswaram',month:'Apr',date:'2026-04-15',scores:[5,5,4,5,5,5,5],mfr:false,mfrScore:0,total:34,max:35,pct:97},
-  {id:'#290056',agent:'Shayanthi Rameswaram',month:'Apr',date:'2026-04-15',scores:[5,5,4,5,5,5,5],mfr:false,mfrScore:0,total:34,max:35,pct:97},
-  {id:'#294365',agent:'Shayanthi Rameswaram',month:'Apr',date:'2026-04-22',scores:[4,4,4,4,4,4,5],mfr:false,mfrScore:0,total:29,max:35,pct:83},
-  {id:'#299306',agent:'Shayanthi Rameswaram',month:'May',date:'2026-05-05',scores:[4,4,4,5,4,4,5],mfr:false,mfrScore:0,total:30,max:35,pct:86},
-  {id:'#304657',agent:'Shayanthi Rameswaram',month:'May',date:'2026-05-15',scores:[4,4,4,4,4,3,5],mfr:false,mfrScore:0,total:28,max:35,pct:80},
-  {id:'#307339',agent:'Shayanthi Rameswaram',month:'May',date:'2026-05-22',scores:[4,4,3,4,3,4,5],mfr:false,mfrScore:0,total:27,max:35,pct:77},
-  {id:'#307167',agent:'Shayanthi Rameswaram',month:'May',date:'2026-05-22',scores:[4,4,3,3,4,4,4],mfr:false,mfrScore:0,total:26,max:35,pct:74},
-  {id:'#308410',agent:'Shayanthi Rameswaram',month:'Jun',date:'2026-06-01',scores:[4,5,4,4,5,4,5],mfr:true,mfrScore:16,total:47,max:55,pct:85},
-  {id:'#313799',agent:'Shayanthi Rameswaram',month:'Jun',date:'2026-06-15',scores:[4,4,3,4,4,4,5],mfr:true,mfrScore:15,total:43,max:55,pct:78},
-  {id:'#311232',agent:'Shayanthi Rameswaram',month:'Jun',date:'2026-06-08',scores:[4,4,4,3,4,3,4],mfr:true,mfrScore:14,total:40,max:55,pct:73},
-  {id:'#317280',agent:'Shayanthi Rameswaram',month:'Jul',date:'2026-07-03',scores:[4,4,4,4,4,4,5],mfr:true,mfrScore:16,total:45,max:55,pct:82},
-  {id:'#318057',agent:'Shayanthi Rameswaram',month:'Jul',date:'2026-07-09',scores:[4,4,4,4,4,4,4],mfr:true,mfrScore:16,total:44,max:55,pct:80},
-  {id:'#321083',agent:'Shayanthi Rameswaram',month:'Jul',date:'2026-07-16',scores:[4,4,4,4,4,3,5],mfr:true,mfrScore:16,total:44,max:55,pct:80},
-  {id:'#322453',agent:'Shayanthi Rameswaram',month:'Jul',date:'2026-07-23',scores:[4,5,4,4,4,4,4],mfr:true,mfrScore:17,total:46,max:55,pct:84},
-  // ── PRAVEEN NANAYAKKARA ───────────────────────────────────────────
-  {id:'#267226',agent:'Praveen Nanayakkara',month:'Jan',date:'2026-01-29',scores:[4,4,4,4,5,3,5],mfr:false,mfrScore:0,total:29,max:35,pct:83},
-  {id:'#263041',agent:'Praveen Nanayakkara',month:'Jan',date:'2026-01-14',scores:[4,4,4,4,5,4,5],mfr:false,mfrScore:0,total:30,max:35,pct:86},
-  {id:'#263823',agent:'Praveen Nanayakkara',month:'Jan',date:'2026-01-14',scores:[5,4,4,4,5,4,5],mfr:false,mfrScore:0,total:31,max:35,pct:89},
-  {id:'#266822',agent:'Praveen Nanayakkara',month:'Jan',date:'2026-01-28',scores:[4,3,3,4,5,4,5],mfr:false,mfrScore:0,total:28,max:35,pct:80},
-  {id:'#307642',agent:'Praveen Nanayakkara',month:'Jun',date:'2026-06-01',scores:[5,4,4,5,5,4,5],mfr:true,mfrScore:14,total:46,max:55,pct:84},
-  {id:'#309353',agent:'Praveen Nanayakkara',month:'Jun',date:'2026-06-08',scores:[5,5,4,5,5,4,5],mfr:true,mfrScore:19,total:51,max:55,pct:93},
-  // ── IRFAN RAHEEM ──────────────────────────────────────────────────
-  {id:'#310705',agent:'Irfan Raheem',month:'Jun',date:'2026-06-04',scores:[5,5,5,5,5,5,5],mfr:true,mfrScore:20,total:55,max:55,pct:100},
-  {id:'#313702',agent:'Irfan Raheem',month:'Jun',date:'2026-06-15',scores:[5,4,5,5,4,4,5],mfr:true,mfrScore:18,total:50,max:55,pct:91},
-  {id:'#315616',agent:'Irfan Raheem',month:'Jun',date:'2026-06-20',scores:[5,4,4,4,5,4,5],mfr:true,mfrScore:16,total:47,max:55,pct:85},
-  {id:'#311624',agent:'Irfan Raheem',month:'Jun',date:'2026-06-08',scores:[5,5,4,5,5,4,5],mfr:true,mfrScore:18,total:51,max:55,pct:93},
-  {id:'#311212',agent:'Irfan Raheem',month:'Jun',date:'2026-06-08',scores:[5,5,5,5,5,5,5],mfr:true,mfrScore:18,total:53,max:55,pct:96},
-  {id:'#313976',agent:'Irfan Raheem',month:'Jun',date:'2026-06-18',scores:[5,5,5,5,5,5,5],mfr:true,mfrScore:17,total:52,max:55,pct:95},
-  // ── GEETHANJALI CHANTHIRASEGARAN ──────────────────────────────────
-  {id:'#307535',agent:'Geethanjali Chanthirasegaran',month:'Jun',date:'2026-06-01',scores:[4,4,4,4,5,5,4],mfr:true,mfrScore:15,total:45,max:55,pct:82},
-  {id:'#315938',agent:'Geethanjali Chanthirasegaran',month:'Jun',date:'2026-06-20',scores:[3,3,3,3,4,3,2],mfr:true,mfrScore:14,total:42,max:55,pct:76},
-  {id:'#309872',agent:'Geethanjali Chanthirasegaran',month:'Jun',date:'2026-06-04',scores:[5,5,4,5,5,5,5],mfr:true,mfrScore:14,total:48,max:55,pct:87},
-  {id:'#308008',agent:'Geethanjali Chanthirasegaran',month:'Jun',date:'2026-06-01',scores:[4,4,4,4,5,4,4],mfr:true,mfrScore:14,total:46,max:55,pct:84},
-  {id:'#310926',agent:'Geethanjali Chanthirasegaran',month:'Jun',date:'2026-06-08',scores:[4,4,4,4,5,4,4],mfr:true,mfrScore:14,total:46,max:55,pct:84},
-  {id:'#309882',agent:'Geethanjali Chanthirasegaran',month:'Jun',date:'2026-06-04',scores:[5,5,4,5,5,5,5],mfr:true,mfrScore:14,total:48,max:55,pct:87},
-  // ── SHANE COLOMBAGE ───────────────────────────────────────────────
-  {id:'#308989',agent:'Shane Colombage',month:'Jun',date:'2026-06-01',scores:[4,5,4,5,5,5,4],mfr:true,mfrScore:14,total:46,max:55,pct:84},
-  {id:'#311583',agent:'Shane Colombage',month:'Jun',date:'2026-06-08',scores:[4,5,3,4,5,5,4],mfr:true,mfrScore:12,total:42,max:55,pct:76},
-  {id:'#309557',agent:'Shane Colombage',month:'Jun',date:'2026-06-05',scores:[5,5,5,5,5,5,3],mfr:true,mfrScore:20,total:53,max:55,pct:96},
-  {id:'#309956',agent:'Shane Colombage',month:'Jun',date:'2026-06-05',scores:[5,5,5,5,5,5,3],mfr:true,mfrScore:20,total:53,max:55,pct:96},
-  {id:'#309966',agent:'Shane Colombage',month:'Jun',date:'2026-06-05',scores:[5,5,5,5,5,5,3],mfr:true,mfrScore:20,total:53,max:55,pct:96},
-  {id:'#310286',agent:'Shane Colombage',month:'Jun',date:'2026-06-08',scores:[4,4,4,4,5,4,3],mfr:true,mfrScore:14,total:45,max:55,pct:82},
-  {id:'#314702',agent:'Shane Colombage',month:'Jun',date:'2026-06-18',scores:[4,4,3,4,4,4,3],mfr:true,mfrScore:15,total:42,max:55,pct:76},
-  {id:'#315891',agent:'Shane Colombage',month:'Jun',date:'2026-06-22',scores:[4,3,4,4,4,4,3],mfr:true,mfrScore:14,total:43,max:55,pct:78},
-  // ── ABINESH JAYARAJAN ─────────────────────────────────────────────
-  {id:'#261809',agent:'Abinesh Jayarajan',month:'Jan',date:'2026-01-08',scores:[3,3,3,3,3,3,5],mfr:false,mfrScore:0,total:23,max:35,pct:66},
-  {id:'#262334',agent:'Abinesh Jayarajan',month:'Jan',date:'2026-01-10',scores:[4,4,4,4,4,4,5],mfr:false,mfrScore:0,total:29,max:35,pct:83},
-  {id:'#263038',agent:'Abinesh Jayarajan',month:'Jan',date:'2026-01-14',scores:[3,2,2,3,3,2,5],mfr:false,mfrScore:0,total:20,max:35,pct:57},
-  {id:'#260602',agent:'Abinesh Jayarajan',month:'Jan',date:'2026-01-05',scores:[4,4,4,4,4,4,3],mfr:false,mfrScore:0,total:27,max:35,pct:77},
-  {id:'#275582',agent:'Abinesh Jayarajan',month:'Feb',date:'2026-02-18',scores:[4,4,4,4,4,2,3],mfr:false,mfrScore:0,total:25,max:35,pct:71},
-  {id:'#268970',agent:'Abinesh Jayarajan',month:'Feb',date:'2026-02-05',scores:[4,4,4,4,4,4,4],mfr:false,mfrScore:0,total:28,max:35,pct:80},
-  {id:'#269004',agent:'Abinesh Jayarajan',month:'Feb',date:'2026-02-06',scores:[4,4,4,4,4,4,4],mfr:false,mfrScore:0,total:28,max:35,pct:80},
-  {id:'#269078',agent:'Abinesh Jayarajan',month:'Feb',date:'2026-02-06',scores:[4,4,3,4,4,4,5],mfr:false,mfrScore:0,total:28,max:35,pct:80},
-  {id:'#279301',agent:'Abinesh Jayarajan',month:'Mar',date:'2026-03-05',scores:[4,4,3,4,4,4,3],mfr:false,mfrScore:0,total:26,max:35,pct:74},
-  {id:'#280001',agent:'Abinesh Jayarajan',month:'Mar',date:'2026-03-06',scores:[4,5,3,4,4,5,3],mfr:false,mfrScore:0,total:28,max:35,pct:80},
-  {id:'#281763',agent:'Abinesh Jayarajan',month:'Mar',date:'2026-03-10',scores:[4,4,4,4,4,4,3],mfr:false,mfrScore:0,total:27,max:35,pct:77},
-  {id:'#284673',agent:'Abinesh Jayarajan',month:'Mar',date:'2026-03-18',scores:[4,4,4,4,3,4,3],mfr:false,mfrScore:0,total:26,max:35,pct:74},
-  {id:'#296495',agent:'Abinesh Jayarajan',month:'Apr',date:'2026-04-20',scores:[3,4,3,3,3,3,2],mfr:false,mfrScore:0,total:21,max:35,pct:60},
-  {id:'#297777',agent:'Abinesh Jayarajan',month:'Apr',date:'2026-04-22',scores:[4,4,3,4,4,4,3],mfr:false,mfrScore:0,total:26,max:35,pct:74},
-  {id:'#293607',agent:'Abinesh Jayarajan',month:'Apr',date:'2026-04-15',scores:[4,4,4,4,4,3,4],mfr:false,mfrScore:0,total:27,max:35,pct:77},
-  {id:'#293633',agent:'Abinesh Jayarajan',month:'Apr',date:'2026-04-16',scores:[4,4,4,4,4,4,3],mfr:false,mfrScore:0,total:27,max:35,pct:77},
-  {id:'#298533',agent:'Abinesh Jayarajan',month:'May',date:'2026-05-01',scores:[4,4,4,4,5,5,3],mfr:false,mfrScore:0,total:29,max:35,pct:83},
-  {id:'#298731',agent:'Abinesh Jayarajan',month:'May',date:'2026-05-04',scores:[4,4,4,4,4,4,4],mfr:false,mfrScore:0,total:28,max:35,pct:80},
-  {id:'#300081',agent:'Abinesh Jayarajan',month:'May',date:'2026-05-11',scores:[4,4,3,4,4,5,4],mfr:false,mfrScore:0,total:28,max:35,pct:80},
-  {id:'#302859',agent:'Abinesh Jayarajan',month:'May',date:'2026-05-18',scores:[4,4,4,4,4,3,4],mfr:false,mfrScore:0,total:27,max:35,pct:77},
-  {id:'#304302',agent:'Abinesh Jayarajan',month:'May',date:'2026-05-22',scores:[4,4,4,4,4,4,4],mfr:false,mfrScore:0,total:28,max:35,pct:80},
-  {id:'#310577',agent:'Abinesh Jayarajan',month:'Jun',date:'2026-06-13',scores:[4,4,3,4,4,4,3],mfr:true,mfrScore:14,total:40,max:55,pct:73},
-  {id:'#313043',agent:'Abinesh Jayarajan',month:'Jun',date:'2026-06-18',scores:[4,4,4,4,4,4,3],mfr:true,mfrScore:16,total:43,max:55,pct:78},
-  {id:'#314485',agent:'Abinesh Jayarajan',month:'Jun',date:'2026-06-20',scores:[4,4,4,4,4,5,3],mfr:true,mfrScore:14,total:45,max:55,pct:82},
-  {id:'#315853',agent:'Abinesh Jayarajan',month:'Jun',date:'2026-06-26',scores:[4,4,4,4,3,3,3],mfr:true,mfrScore:14,total:43,max:55,pct:78},
-  {id:'#319989',agent:'Abinesh Jayarajan',month:'Jul',date:'2026-07-10',scores:[5,4,4,5,4,4,5],mfr:true,mfrScore:18,total:48,max:55,pct:87},
-  {id:'#320327',agent:'Abinesh Jayarajan',month:'Jul',date:'2026-07-14',scores:[5,5,4,5,5,5,5],mfr:true,mfrScore:19,total:52,max:55,pct:95},
-  {id:'#320375',agent:'Abinesh Jayarajan',month:'Jul',date:'2026-07-15',scores:[5,4,4,4,4,5,5],mfr:true,mfrScore:16,total:46,max:55,pct:84},
-  // ── HUSNI GHAFFARI ────────────────────────────────────────────────
-  {id:'#263294',agent:'Husni Ghaffari',month:'Jan',date:'2026-01-15',scores:[5,5,4,5,5,4,5],mfr:false,mfrScore:0,total:33,max:35,pct:94},
-  {id:'#262283',agent:'Husni Ghaffari',month:'Jan',date:'2026-01-10',scores:[5,5,5,5,5,4,5],mfr:false,mfrScore:0,total:34,max:35,pct:97},
-  {id:'#267956',agent:'Husni Ghaffari',month:'Jan',date:'2026-01-28',scores:[5,5,4,5,5,5,5],mfr:false,mfrScore:0,total:34,max:35,pct:97},
-  {id:'#307454',agent:'Husni Ghaffari',month:'Jun',date:'2026-06-02',scores:[5,4,5,5,4,4,4],mfr:true,mfrScore:16,total:47,max:55,pct:85},
-  {id:'#307826',agent:'Husni Ghaffari',month:'Jun',date:'2026-06-01',scores:[5,5,4,5,5,5,5],mfr:true,mfrScore:18,total:52,max:55,pct:95},
-  {id:'#308141',agent:'Husni Ghaffari',month:'Jun',date:'2026-06-01',scores:[5,5,5,5,5,5,5],mfr:true,mfrScore:13,total:48,max:55,pct:87},
-  // ── AQEELA RAHEEM ─────────────────────────────────────────────────
-  {id:'#303263',agent:'Aqeela Raheem',month:'May',date:'2026-05-15',scores:[4,4,3,4,5,4,5],mfr:false,mfrScore:0,total:29,max:35,pct:83},
-  {id:'#304228',agent:'Aqeela Raheem',month:'May',date:'2026-05-20',scores:[5,5,4,5,5,5,5],mfr:false,mfrScore:0,total:34,max:35,pct:97},
-  {id:'#307267',agent:'Aqeela Raheem',month:'May',date:'2026-05-28',scores:[5,5,4,5,5,4,5],mfr:false,mfrScore:0,total:33,max:35,pct:94},
-  {id:'#309006',agent:'Aqeela Raheem',month:'Jun',date:'2026-06-11',scores:[5,5,4,5,5,5,5],mfr:true,mfrScore:13,total:47,max:55,pct:85},
-  {id:'#309434',agent:'Aqeela Raheem',month:'Jun',date:'2026-06-12',scores:[5,5,4,5,5,5,5],mfr:true,mfrScore:14,total:48,max:55,pct:87},
-  {id:'#310305',agent:'Aqeela Raheem',month:'Jun',date:'2026-06-18',scores:[3,4,3,4,4,4,3],mfr:true,mfrScore:13,total:41,max:55,pct:75},
-];
+/* ── DATE PICKER ── */
+.date-wrap{position:relative}
+.date-trigger{display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:7px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#fff;font-family:inherit;font-size:12px;font-weight:500;cursor:pointer;transition:.15s;white-space:nowrap}
+.date-trigger:hover{border-color:rgba(255,255,255,.45);background:rgba(255,255,255,.14)}
+.date-trigger svg{width:14px;height:14px;opacity:.7;transition:.2s}
+.date-trigger.open svg{transform:rotate(180deg)}
+.date-dropdown{position:absolute;right:0;top:calc(100% + 6px);background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-lg);min-width:180px;z-index:300;display:none}
+.date-dropdown.open{display:block}
+.dd-group{padding:5px 0}
+.dd-group+.dd-group{border-top:1px solid var(--border)}
+.dd-item{padding:8px 14px;font-size:13px;color:var(--navy-mid);cursor:pointer;transition:.1s;font-weight:500}
+.dd-item:hover{background:var(--navy-light);color:var(--navy)}
+.dd-item.active{background:var(--navy);color:#fff}
+.dd-custom{padding:8px 14px;font-size:13px;color:#fff;background:var(--navy);cursor:pointer;font-weight:600;display:flex;align-items:center;gap:6px}
+.dd-custom:hover{background:var(--navy-mid)}
+.custom-range-panel{display:none;padding:12px 14px;border-top:1px solid var(--border);background:#f8faff}
+.custom-range-panel.open{display:block}
+.custom-range-panel label{font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:4px}
+.custom-range-panel input[type=date]{width:100%;border:1.5px solid var(--border);border-radius:6px;padding:6px 8px;font-family:inherit;font-size:12px;color:var(--text);background:#fff;outline:none;margin-bottom:8px}
+.custom-range-panel input[type=date]:focus{border-color:var(--navy)}
+.custom-range-panel button{width:100%;padding:7px;background:var(--navy);color:#fff;border:none;border-radius:6px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer}
+
+/* ── TABS ── */
+.tab-bar{background:#fff;border-bottom:1px solid var(--border);display:flex;padding:0 28px;position:sticky;top:56px;z-index:100}
+.tab-btn{padding:14px 20px;font-family:inherit;font-size:13px;font-weight:500;color:var(--text-3);background:none;border:none;border-bottom:2.5px solid transparent;cursor:pointer;transition:.15s;white-space:nowrap}
+.tab-btn:hover{color:var(--text-2)}
+.tab-btn.active{color:var(--navy);border-bottom-color:var(--navy);font-weight:600}
+
+/* ── MAIN ── */
+main{max-width:1200px;margin:0 auto;padding:24px 20px 64px}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.sec-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:12px}
+
+/* ── KPI STRIP ── */
+.kpi-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:24px}
+.kpi{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.kpi .label{font-size:11px;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.kpi .value{font-size:26px;font-weight:800;color:var(--navy);letter-spacing:-.03em;line-height:1}
+.kpi .sub{font-size:11px;color:var(--text-3);margin-top:3px}
+.kpi.dark{background:var(--navy)}
+.kpi.dark .label{color:rgba(255,255,255,.5)}
+.kpi.dark .value{color:#fff}
+.kpi.dark .sub{color:rgba(255,255,255,.4)}
+
+/* ── HIGHLIGHT ── */
+.highlight-card{background:var(--navy);border-radius:14px;padding:20px 24px;display:flex;align-items:center;gap:20px;box-shadow:var(--shadow-lg);margin-bottom:24px;position:relative;overflow:hidden}
+.highlight-card::before{content:'';position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:rgba(255,255,255,.04)}
+.hl-icon{font-size:32px;flex-shrink:0}
+.hl-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:4px}
+.hl-name{font-size:18px;font-weight:800;color:#fff;letter-spacing:-.02em}
+.hl-score{font-size:13px;color:rgba(255,255,255,.6);margin-top:3px}
+.hl-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.hl-tag{font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.8);font-weight:500}
+
+/* ── AGENT LIST ── */
+.agent-list{display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
+.agent-row{border-radius:12px;overflow:hidden;background:#fff;border:1.5px solid var(--border);box-shadow:var(--shadow);transition:border-color .15s,box-shadow .15s}
+.agent-row:hover{border-color:var(--border-strong);box-shadow:var(--shadow-lg)}
+.agent-row.active{border-color:var(--navy)}
+.agent-row-header{display:flex;align-items:center;gap:16px;padding:14px 20px;cursor:pointer;user-select:none}
+.ar-grade-bar{width:4px;height:36px;border-radius:2px;flex-shrink:0}
+.ar-avatar{width:38px;height:38px;border-radius:50%;background:var(--navy-light);border:2px solid var(--navy);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:15px;color:var(--navy);flex-shrink:0}
+.ar-info{flex:1;min-width:0}
+.ar-name{font-size:14px;font-weight:700;color:var(--text);letter-spacing:-.01em}
+.ar-role{font-size:11px;color:var(--text-3);margin-top:1px}
+.ar-month-dots{display:flex;gap:4px;align-items:center;flex-shrink:0}
+.ar-month-dot{width:7px;height:7px;border-radius:50%}
+.ar-month-label{font-size:9px;color:var(--text-3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-right:2px}
+.ar-score{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--navy);letter-spacing:-.02em;line-height:1;min-width:52px;text-align:right;flex-shrink:0}
+.ar-score-pct{font-size:12px;color:var(--text-3);font-weight:500;margin-left:1px}
+.ar-chevron{font-size:14px;color:var(--text-3);transition:transform .2s;flex-shrink:0;margin-left:8px}
+.agent-row.active .ar-chevron{transform:rotate(180deg);color:var(--navy)}
+
+/* ── EXPANDED DETAIL PANEL ── */
+.agent-detail{display:none;border-top:1px solid var(--border)}
+.agent-detail.open{display:block;animation:slideDown .2s ease}
+@keyframes slideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.detail-inner{display:grid;grid-template-columns:1fr 2fr;gap:0;padding:20px}
+.detail-col{padding:0 16px}
+.detail-col:first-child{padding-left:4px;border-right:1px solid var(--border)}
+.detail-col.obs-col{padding-right:4px}
+.detail-col-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);margin-bottom:12px}
+
+/* Category bars */
+.dc-cat{margin-bottom:10px}
+.dc-cat-name{font-size:11px;font-weight:600;color:var(--text-2);margin-bottom:4px;display:flex;justify-content:space-between;align-items:center}
+.dc-cat-score{font-size:11px;font-weight:800;min-width:24px;text-align:right}
+.dc-cat-track{height:5px;background:#e2e8f0;border-radius:3px;overflow:hidden}
+.dc-cat-fill{height:100%;border-radius:3px}
+
+/* Observations */
+.obs-item{display:flex;gap:10px;align-items:flex-start;margin-bottom:10px}
+.obs-tag{font-size:10px;font-weight:700;color:#fff;background:var(--navy);padding:2px 8px;border-radius:10px;white-space:nowrap;flex-shrink:0;margin-top:2px;letter-spacing:.04em}
+.obs-tag.empty{background:var(--border);color:var(--text-3)}
+.obs-text{font-size:12px;color:var(--text-2);line-height:1.55}
+.obs-text.empty{color:var(--text-3);font-style:italic;font-size:11px}
+
+/* H1 Summary */
+.summary-block{background:#f0f4ff;border:1px solid #c5d0e8;border-radius:8px;padding:14px;font-size:12.5px;color:var(--text-2);line-height:1.65;margin-top:14px}
+.summary-grade-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.summary-grade-chip{font-size:10px;font-weight:600;padding:3px 8px;border-radius:8px}
+
+/* ── TEAM CATS ── */
+.team-cats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-bottom:28px}
+.team-cat-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px;box-shadow:var(--shadow)}
+.team-cat-name{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:8px}
+.team-cat-score{font-size:28px;font-weight:800;letter-spacing:-.03em;line-height:1;margin-bottom:6px}
+.team-cat-bar{height:5px;background:#e2e8f0;border-radius:3px;overflow:hidden;margin-bottom:5px}
+.team-cat-bar-fill{height:100%;border-radius:3px}
+.team-cat-sub{font-size:10px;color:var(--text-3)}
+
+/* ── CHARTS ── */
+.charts-row{display:grid;grid-template-columns:1.7fr 1fr;gap:14px;margin-bottom:24px}
+.chart-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:18px;box-shadow:var(--shadow)}
+.chart-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:14px}
+
+/* ── TABLE ── */
+.table-card{background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow);overflow:hidden}
+.table-hdr{padding:14px 18px;border-bottom:1px solid #eef1f7;display:flex;align-items:center;justify-content:space-between}
+.table-hdr h3{font-size:13px;font-weight:600}
+.table-hdr span{font-size:11px;color:var(--text-3)}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:9px 14px;font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.07em;background:#f8faff;border-bottom:1px solid var(--border)}
+td{padding:10px 14px;font-size:12px;border-bottom:1px solid #eef1f7;color:var(--text)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f8faff}
+.tid{font-weight:600;color:var(--navy);font-size:11px}
+.grade-chip{display:inline-block;width:10px;height:10px;border-radius:50%;vertical-align:middle}
+
+/* ── CRITERIA SECTION ── */
+.criteria-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;box-shadow:var(--shadow)}
+.criteria-title{font-size:12px;font-weight:700;color:var(--navy);margin-bottom:10px}
+.criteria-text{font-size:12px;color:var(--text-2);line-height:1.7}
+.criteria-score-box{background:#f0f4ff;border:1px solid #c5d0e8;border-radius:8px;padding:10px 14px;margin-bottom:8px}
+.criteria-score-box .title{font-size:11px;font-weight:700;color:var(--navy)}
+.criteria-score-box .sub{font-size:11px;color:var(--text-3);margin-top:2px}
+
+@media(max-width:768px){.kpi-strip{grid-template-columns:repeat(2,1fr)}.charts-row{grid-template-columns:1fr}.detail-inner{grid-template-columns:1fr}.criteria-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="hdr-logo">
+      <svg viewBox="0 0 16 16" fill="none"><rect width="7" height="7" rx="1.5" fill="#002E6E"/><rect x="9" width="7" height="7" rx="1.5" fill="#002E6E"/><rect y="9" width="7" height="7" rx="1.5" fill="#002E6E"/><rect x="9" y="9" width="7" height="7" rx="1.5" fill="#002E6E" opacity=".35"/></svg>
+    </div>
+    <h1>Cin7 Core <span>/ Team Quality Dashboard</span></h1>
+  </div>
+  <div class="date-wrap" id="dateWrap">
+    <button class="date-trigger" id="dateTrigger" onclick="toggleDD()">
+      <span id="dateLabel">All time</span>
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6l4 4 4-4"/></svg>
+    </button>
+    <div class="date-dropdown" id="dateDD">
+      <div class="dd-group">
+        <div class="dd-item" onclick="selPreset('7d','Last 7 days')">Last 7 days</div>
+        <div class="dd-item" onclick="selPreset('30d','Last 30 days')">Last 30 days</div>
+        <div class="dd-item" onclick="selPreset('90d','Last 90 days')">Last 90 days</div>
+        <div class="dd-item" onclick="selPreset('6m','Last 6 months')">Last 6 months</div>
+        <div class="dd-item" onclick="selPreset('12m','Last 12 months')">Last 12 months</div>
+        <div class="dd-item" onclick="selPreset('24m','Last 24 months')">Last 24 months</div>
+      </div>
+      <div class="dd-group">
+        <div class="dd-item" onclick="selPreset('today','Today')">Today</div>
+        <div class="dd-item" onclick="selPreset('week','This week')">This week</div>
+        <div class="dd-item" onclick="selPreset('month','This month')">This month</div>
+        <div class="dd-item" onclick="selPreset('year','This year')">This year</div>
+      </div>
+      <div class="dd-group">
+        <div class="dd-item" onclick="selPreset('prev-week','Previous week')">Previous week</div>
+        <div class="dd-item" onclick="selPreset('prev-month','Previous month')">Previous month</div>
+        <div class="dd-item" onclick="selPreset('prev-year','Previous year')">Previous year</div>
+      </div>
+      <div class="dd-group">
+        <div class="dd-item active" onclick="selPreset('all','All time')">All time</div>
+      </div>
+      <div class="dd-group" style="padding:0">
+        <div class="dd-custom" onclick="toggleCustom()">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="13" height="13"><rect x="2" y="3" width="12" height="11" rx="2"/><path d="M5 1v4M11 1v4M2 7h12"/></svg>
+          Custom range
+        </div>
+        <div class="custom-range-panel" id="customPanel">
+          <label>From</label><input type="date" id="cfrom">
+          <label>To</label><input type="date" id="cto">
+          <button onclick="applyCustom()">Apply</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('overview',this)">Overview</button>
+  <button class="tab-btn" onclick="switchTab('agents',this)">Agents</button>
+  <button class="tab-btn" onclick="switchTab('trends',this)">Trends</button>
+  <button class="tab-btn" onclick="switchTab('tickets',this)">Tickets</button>
+</div>
+
+<main>
+  <!-- OVERVIEW -->
+  <div class="tab-panel active" id="tab-overview">
+    <div class="sec-label">Team at a glance</div>
+    <div class="kpi-strip">
+      <div class="kpi"><div class="label">Tickets reviewed</div><div class="value" id="kTotal">—</div><div class="sub">this period</div></div>
+      <div class="kpi"><div class="label">Team avg quality</div><div class="value" id="kAvg">—</div><div class="sub">across all agents</div></div>
+      <div class="kpi"><div class="label">Green rate</div><div class="value" id="kGreen">—</div><div class="sub">scoring ≥ 90%</div></div>
+      <div class="kpi"><div class="label">Agents tracked</div><div class="value" id="kAgents">—</div><div class="sub">this period</div></div>
+      <div class="kpi dark">
+        <div class="label">Grade key</div>
+        <div style="display:flex;flex-direction:column;gap:5px;margin-top:6px">
+          <div style="display:flex;align-items:center;gap:7px;font-size:11px;color:rgba(255,255,255,.65)"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#22c55e;flex-shrink:0"></span>Green ≥ 90%</div>
+          <div style="display:flex;align-items:center;gap:7px;font-size:11px;color:rgba(255,255,255,.65)"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f59e0b;flex-shrink:0"></span>Amber 79–89%</div>
+          <div style="display:flex;align-items:center;gap:7px;font-size:11px;color:rgba(255,255,255,.65)"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#f97316;flex-shrink:0"></span>Orange 65–78%</div>
+          <div style="display:flex;align-items:center;gap:7px;font-size:11px;color:rgba(255,255,255,.65)"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;flex-shrink:0"></span>Red &lt; 65%</div>
+        </div>
+      </div>
+    </div>
+    <div class="sec-label">Agent of the period</div>
+    <div id="hlWrap" style="margin-bottom:24px"></div>
+    <div class="sec-label">Quality trend</div>
+    <div class="chart-card" style="margin-bottom:24px">
+      <div class="chart-title">Quality score by agent — month on month</div>
+      <div style="position:relative;height:260px"><canvas id="ovTrendChart" aria-label="Quality trend chart">Chart.</canvas></div>
+    </div>
+    <div class="sec-label">Sampling &amp; selection criteria</div>
+    <div class="criteria-grid">
+      <div>
+        <div class="criteria-title">How tickets are sampled</div>
+        <div class="criteria-text">Each agent's monthly solved and closed tickets are sampled at approximately <strong>11% of monthly volume</strong>, with a minimum of 3 and a maximum of 8 tickets per month. Tickets with no agent replies are excluded.<br><br>Tickets are prioritised in the following order:</div>
+        <ol style="font-size:12px;color:var(--text-2);line-height:1.9;margin-top:8px;padding-left:18px">
+          <li>Bad CSAT (rating below 5)</li>
+          <li>Slow FRT (&gt;24 hrs) + High Complexity (8+ replies)</li>
+          <li>Slow FRT alone</li>
+          <li>High Complexity alone</li>
+          <li>Medium Complexity (4–7 replies)</li>
+          <li>Short tickets (1–3 replies)</li>
+        </ol>
+      </div>
+      <div>
+        <div class="criteria-title">Scoring framework</div>
+        <div class="criteria-text" style="margin-bottom:12px">Two scorecard versions are in use depending on ticket date:</div>
+        <div class="criteria-score-box"><div class="title">Pre-20 May 2026 — 35 points</div><div class="sub">7 categories × 5 pts · Pass threshold: 32/35 (90%)</div></div>
+        <div class="criteria-score-box"><div class="title">Post-20 May 2026 — 55 points</div><div class="sub">7 base + 4 MFR categories × 5 pts · Pass: 50/55 (90%)</div></div>
+        <div class="criteria-title" style="margin-top:14px;margin-bottom:8px">Grade thresholds</div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-2)"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#22c55e;flex-shrink:0"></span>Green — ≥ 90%</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-2)"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#f59e0b;flex-shrink:0"></span>Amber — 79–89%</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-2)"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#f97316;flex-shrink:0"></span>Orange — 65–78%</div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-2)"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;flex-shrink:0"></span>Red — &lt; 65%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AGENTS -->
+  <div class="tab-panel" id="tab-agents">
+    <div class="sec-label">Click a row to expand — categories, monthly observations, and H1 summary</div>
+    <div class="agent-list" id="agentList"></div>
+    <div class="sec-label" style="margin-top:8px">Team category averages</div>
+    <div class="team-cats-grid" id="teamCatsGrid"></div>
+  </div>
+
+  <!-- TRENDS -->
+  <div class="tab-panel" id="tab-trends">
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Quality trend by agent</div>
+        <div style="position:relative;height:280px"><canvas id="trendChart" aria-label="Trend chart">Chart.</canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Team average vs 90% threshold</div>
+        <div style="position:relative;height:280px"><canvas id="teamChart" aria-label="Team avg chart">Chart.</canvas></div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Category performance — team average (1–5)</div>
+      <div style="position:relative;height:240px"><canvas id="catChart" aria-label="Category chart">Chart.</canvas></div>
+    </div>
+  </div>
+
+  <!-- TICKETS -->
+  <div class="tab-panel" id="tab-tickets">
+    <div class="table-card">
+      <div class="table-hdr"><h3>All reviewed tickets</h3><span id="ticketCountLabel">—</span></div>
+      <div id="tableBody"></div>
+    </div>
+  </div>
+</main>
+
+<script>
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul'];
+const CATS   = ['Communication','Foundations','Empathy','Service Mindset','Product Knowledge','Solution Offered','Templated Response'];
+const CSHORT = ['COM','FND','EMP','SVC','PKN','SOL','TMP'];
+
+function gradeColor(p){return p>=90?'#22c55e':p>=79?'#f59e0b':p>=65?'#f97316':'#ef4444'}
+function catColor(v){return v>=4.5?'#16a34a':v>=4?'#2563eb':v>=3?'#ea580c':'#dc2626'}
+
+let preset='all',cfrom=null,cto=null,openAgent=null,charts={};
+
+function filterTickets(){
+  const now=new Date();const today=now.toISOString().split('T')[0];
+  const dAgo=n=>{const d=new Date(now);d.setDate(d.getDate()-n);return d.toISOString().split('T')[0]};
+  const mAgo=n=>{const d=new Date(now);d.setMonth(d.getMonth()-n);return d.toISOString().split('T')[0]};
+  const soW=()=>{const d=new Date(now);d.setDate(d.getDate()-d.getDay());return d.toISOString().split('T')[0]};
+  const soM=()=>{const d=new Date(now);d.setDate(1);return d.toISOString().split('T')[0]};
+  const soY=()=>now.getFullYear()+'-01-01';
+  if(preset==='all') return ALL_TICKETS;
+  let from=null,to=today;
+  if(preset==='custom'){from=cfrom;to=cto||today;}
+  else if(preset==='7d') from=dAgo(7);
+  else if(preset==='30d') from=dAgo(30);
+  else if(preset==='90d') from=dAgo(90);
+  else if(preset==='6m') from=mAgo(6);
+  else if(preset==='12m') from=mAgo(12);
+  else if(preset==='24m') from=mAgo(24);
+  else if(preset==='today') from=today;
+  else if(preset==='week') from=soW();
+  else if(preset==='month') from=soM();
+  else if(preset==='year') from=soY();
+  else if(preset==='prev-week'){const s=new Date(now);s.setDate(s.getDate()-s.getDay()-7);from=s.toISOString().split('T')[0];const e=new Date(s);e.setDate(e.getDate()+6);to=e.toISOString().split('T')[0];}
+  else if(preset==='prev-month'){const d=new Date(now);d.setDate(0);to=d.toISOString().split('T')[0];d.setDate(1);from=d.toISOString().split('T')[0];}
+  else if(preset==='prev-year'){from=(now.getFullYear()-1)+'-01-01';to=(now.getFullYear()-1)+'-12-31';}
+  if(!from) return ALL_TICKETS;
+  return ALL_TICKETS.filter(t=>t.date>=from&&t.date<=to);
+}
+
+function toggleDD(){document.getElementById('dateDD').classList.toggle('open');document.getElementById('dateTrigger').classList.toggle('open');}
+function closeDD(){document.getElementById('dateDD').classList.remove('open');document.getElementById('dateTrigger').classList.remove('open');}
+function selPreset(p,label){
+  preset=p;document.getElementById('dateLabel').textContent=label;
+  document.querySelectorAll('.dd-item').forEach(i=>i.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('customPanel').classList.remove('open');
+  closeDD();render();
+}
+function toggleCustom(){document.getElementById('customPanel').classList.toggle('open');}
+function applyCustom(){
+  cfrom=document.getElementById('cfrom').value;cto=document.getElementById('cto').value;
+  if(!cfrom) return;preset='custom';
+  document.getElementById('dateLabel').textContent=cfrom+(cto?' → '+cto:'');
+  document.querySelectorAll('.dd-item').forEach(i=>i.classList.remove('active'));
+  closeDD();render();
+}
+document.addEventListener('click',e=>{if(!document.getElementById('dateWrap').contains(e.target)) closeDD();});
+
+function switchTab(name,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+  const t=filterTickets();
+  if(name==='trends'||name==='overview') renderCharts(t);
+  if(name==='agents'){renderAgents(t);renderTeamCats(t);}
+}
+
+function render(){
+  const t=filterTickets();
+  renderKPIs(t);renderHighlight(t);renderCharts(t);
+  renderAgents(t);renderTeamCats(t);renderTable(t);
+}
+
+function renderKPIs(t){
+  const agents=[...new Set(t.map(x=>x.agent))];
+  const avg=t.length?Math.round(t.reduce((s,x)=>s+x.pct,0)/t.length):0;
+  const gr=t.length?Math.round(t.filter(x=>x.pct>=90).length/t.length*100):0;
+  document.getElementById('kTotal').textContent=t.length;
+  document.getElementById('kAvg').textContent=avg+'%';
+  document.getElementById('kGreen').textContent=gr+'%';
+  document.getElementById('kAgents').textContent=agents.length;
+}
+
+function renderHighlight(tickets){
+  const agents=[...new Set(tickets.map(t=>t.agent))];
+  let best=null,bestAvg=0;
+  agents.forEach(a=>{const at=tickets.filter(t=>t.agent===a);const avg=Math.round(at.reduce((s,t)=>s+t.pct,0)/at.length);if(avg>bestAvg){bestAvg=avg;best=a;}});
+  const el=document.getElementById('hlWrap');
+  if(!best){el.innerHTML='';return;}
+  const at=tickets.filter(t=>t.agent===best);
+  const meta=AGENT_META[best]||{role:'Support Agent',dept:''};
+  const perfect=at.filter(t=>t.pct===100).length;
+  el.innerHTML=`<div class="highlight-card"><div class="hl-icon">⭐</div><div><div class="hl-label">Agent of the period</div><div class="hl-name">${best}</div><div class="hl-score">${bestAvg}% average · ${at.length} tickets · ${meta.role}</div><div class="hl-tags">${perfect?`<span class="hl-tag">${perfect} perfect score${perfect>1?'s':''}</span>`:''}<span class="hl-tag">${at.filter(t=>t.pct>=90).length}/${at.length} green</span><span class="hl-tag">${meta.dept}</span></div></div></div>`;
+}
+
+function autoSummary(agent,tickets){
+  const avg=Math.round(tickets.reduce((s,t)=>s+t.pct,0)/tickets.length);
+  const months=MONTHS.filter(m=>tickets.some(t=>t.month===m));
+  const passing=months.filter(m=>{const mt=tickets.filter(t=>t.month===m);return mt.length&&Math.round(mt.reduce((s,t)=>s+t.pct,0)/mt.length)>=90;});
+  const catAvgs=CATS.map((c,i)=>({name:c,avg:tickets.reduce((s,t)=>s+t.scores[i],0)/tickets.length}));
+  const strong=catAvgs.filter(c=>c.avg>=4.5).map(c=>c.name);
+  const weak=catAvgs.filter(c=>c.avg<4).sort((a,b)=>a.avg-b.avg).map(c=>c.name);
+  const fn=agent.split(' ')[0];
+  let s=`${fn} averaged ${avg}% across ${tickets.length} reviewed ticket${tickets.length>1?'s':''} over ${months.length} month${months.length>1?'s':''}, with ${passing.length} of ${months.length} month${months.length>1?'s':''} hitting the 90% threshold. `;
+  if(strong.length) s+=`Consistently strong in ${strong.slice(0,2).join(' and ')}. `;
+  if(weak.length) s+=`Primary coaching focus: ${weak[0]}${weak[1]?' and '+weak[1]:''}. `;
+  if(months.length>=3){const scores=months.map(m=>{const mt=tickets.filter(t=>t.month===m);return Math.round(mt.reduce((s,t)=>s+t.pct,0)/mt.length);});const first=scores[0],last=scores[scores.length-1];if(last-first>=5) s+='Trend is improving across the review period.';else if(first-last>=5) s+='Scores have dipped across the review period — worth monitoring.';else s+='Performance has been consistent across the review period.';}
+  return s;
+}
+
+function renderAgents(tickets){
+  const agents=[...new Set(tickets.map(t=>t.agent))];
+  const list=document.getElementById('agentList');
+  if(!agents.length){list.innerHTML='<p style="color:var(--text-3);padding:20px">No data for this period.</p>';return;}
+  list.innerHTML=agents.map(agent=>{
+    const at=tickets.filter(t=>t.agent===agent);
+    const avg=Math.round(at.reduce((s,t)=>s+t.pct,0)/at.length);
+    const catAvgs=CATS.map((c,i)=>({name:c,avg:at.reduce((s,t)=>s+t.scores[i],0)/at.length}));
+    const meta=AGENT_META[agent]||{role:'Support',initials:agent.split(' ').map(w=>w[0]).join('').substring(0,2),dept:''};
+    const gc=gradeColor(avg);
+    const isOpen=openAgent===agent;
+    const monthDots=MONTHS.map(m=>{const mt=at.filter(t=>t.month===m);if(!mt.length) return `<div class="ar-month-dot" style="background:#e2e8f0" title="${m}: no data"></div>`;const mavg=Math.round(mt.reduce((s,t)=>s+t.pct,0)/mt.length);return `<div class="ar-month-dot" style="background:${gradeColor(mavg)}" title="${m}: ${mavg}%"></div>`;}).join('');
+    const catsHTML=catAvgs.map(c=>{const col=catColor(c.avg);return `<div class="dc-cat"><div class="dc-cat-name"><span>${c.name}</span><span class="dc-cat-score" style="color:${col}">${c.avg.toFixed(1)}</span></div><div class="dc-cat-track"><div class="dc-cat-fill" style="width:${c.avg/5*100}%;background:${col}"></div></div></div>`;}).join('');
+    const obs=OBSERVATIONS[agent]||{};
+    const obsItems=MONTHS.map(m=>{const hasObs=obs[m]&&obs[m]!==null;const mt=at.filter(t=>t.month===m);if(!mt.length&&!hasObs) return '';return `<div class="obs-item"><span class="obs-tag${hasObs?'':' empty'}">${m}</span><span class="obs-text${hasObs?'':' empty'}">${hasObs?obs[m]:'No data this period'}</span></div>`;}).join('');
+    const summary=autoSummary(agent,at);
+    const monthGrades=MONTHS.filter(m=>at.some(t=>t.month===m)).map(m=>{const mt=at.filter(t=>t.month===m);const mavg=Math.round(mt.reduce((s,t)=>s+t.pct,0)/mt.length);return `<span class="summary-grade-chip" style="background:${gradeColor(mavg)}22;color:${gradeColor(mavg)}">${m} ${mavg}%</span>`;}).join('');
+    return `<div class="agent-row${isOpen?' active':''}" id="ar-${agent.replace(/\s/g,'_')}">
+      <div class="agent-row-header" onclick="toggleAgent('${agent}')">
+        <div class="ar-grade-bar" style="background:${gc}"></div>
+        <div class="ar-avatar">${meta.initials}</div>
+        <div class="ar-info"><div class="ar-name">${agent}</div><div class="ar-role">${meta.role} · ${meta.dept}</div></div>
+        <div class="ar-month-dots"><span class="ar-month-label">J F M A M J J</span>${monthDots}</div>
+        <div class="ar-score">${avg}<span class="ar-score-pct">%</span></div>
+        <div class="ar-chevron">&#9660;</div>
+      </div>
+      <div class="agent-detail${isOpen?' open':''}" id="det-${agent.replace(/\s/g,'_')}">
+        <div class="detail-inner">
+          <div class="detail-col">
+            <div class="detail-col-title">Category breakdown</div>
+            ${catsHTML}
+            <div class="detail-col-title" style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">H1 summary</div>
+            <div class="summary-block">${summary}<div class="summary-grade-row">${monthGrades}</div></div>
+          </div>
+          <div class="detail-col obs-col">
+            <div class="detail-col-title">Monthly observations</div>
+            ${obsItems||'<p style="font-size:12px;color:var(--text-3);font-style:italic">No observations recorded</p>'}
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleAgent(agent){
+  openAgent=openAgent===agent?null:agent;
+  renderAgents(filterTickets());
+  if(openAgent){setTimeout(()=>{const el=document.getElementById('ar-'+agent.replace(/\s/g,'_'));if(el) el.scrollIntoView({behavior:'smooth',block:'nearest'});},60);}
+}
+
+function renderTeamCats(tickets){
+  const catAvgs=CATS.map((c,i)=>({name:c,avg:tickets.length?tickets.reduce((s,t)=>s+t.scores[i],0)/tickets.length:0}));
+  document.getElementById('teamCatsGrid').innerHTML=catAvgs.map(c=>{const col=catColor(c.avg);return `<div class="team-cat-card"><div class="team-cat-name">${c.name}</div><div class="team-cat-score" style="color:${col}">${c.avg.toFixed(1)}</div><div class="team-cat-bar"><div class="team-cat-bar-fill" style="width:${c.avg/5*100}%;background:${col}"></div></div><div class="team-cat-sub">team avg / 5</div></div>`;}).join('');
+}
+
+function renderCharts(tickets){
+  const agents=[...new Set(tickets.map(t=>t.agent))];
+  const colors=['#2a78d6','#1baf7a','#eda100','#4a3aa7','#e34948','#e0529a','#0891b2','#d97706','#7c3aed'];
+  const ds=agents.map((a,i)=>({label:a.split(' ')[0],data:MONTHS.map(m=>{const mt=tickets.filter(t=>t.agent===a&&t.month===m);return mt.length?Math.round(mt.reduce((s,t)=>s+t.pct,0)/mt.length):null;}),borderColor:colors[i%colors.length],backgroundColor:colors[i%colors.length]+'18',borderWidth:2,pointRadius:4,pointBackgroundColor:colors[i%colors.length],tension:.35,spanGaps:true}));
+  const tAvgs=MONTHS.map(m=>{const mt=tickets.filter(t=>t.month===m);return mt.length?Math.round(mt.reduce((s,t)=>s+t.pct,0)/mt.length):null;});
+  const tCfg={type:'line',data:{labels:MONTHS,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:10,font:{size:11},padding:12}}},scales:{y:{min:50,max:100,grid:{color:'#edf2f7'},ticks:{color:'#8492a6',font:{size:11},callback:v=>v+'%'}},x:{grid:{display:false},ticks:{color:'#8492a6',font:{size:11}}}},interaction:{mode:'index',intersect:false}}};
+  function mk(id,cfg){if(charts[id])charts[id].destroy();const el=document.getElementById(id);if(!el)return;charts[id]=new Chart(el,cfg);}
+  mk('trendChart',tCfg);mk('ovTrendChart',JSON.parse(JSON.stringify(tCfg)));
+  mk('teamChart',{type:'bar',data:{labels:MONTHS,datasets:[{label:'Team avg',data:tAvgs,backgroundColor:tAvgs.map(v=>v?gradeColor(v)+'cc':'#e2e8f0'),borderRadius:4,borderSkipped:false},{label:'90% threshold',data:MONTHS.map(()=>90),type:'line',borderColor:'#ef4444',borderWidth:1.5,borderDash:[5,3],pointRadius:0,fill:false,tension:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:50,max:100,grid:{color:'#edf2f7'},ticks:{color:'#8492a6',font:{size:11},callback:v=>v+'%'}},x:{grid:{display:false},ticks:{color:'#8492a6',font:{size:11}}}}}});
+  const cAvgs=CATS.map((c,i)=>tickets.length?parseFloat((tickets.reduce((s,t)=>s+t.scores[i],0)/tickets.length).toFixed(1)):0);
+  mk('catChart',{type:'bar',data:{labels:CATS,datasets:[{label:'Team avg',data:cAvgs,backgroundColor:cAvgs.map(v=>gradeColor(v/5*100)+'cc'),borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:5,grid:{color:'#edf2f7'},ticks:{color:'#8492a6',font:{size:11}}},x:{grid:{display:false},ticks:{color:'#8492a6',font:{size:10},maxRotation:25}}}}});
+}
+
+function renderTable(tickets){
+  document.getElementById('ticketCountLabel').textContent=tickets.length+' ticket'+(tickets.length!==1?'s':'');
+  if(!tickets.length){document.getElementById('tableBody').innerHTML='<div style="text-align:center;padding:32px;color:var(--text-3)">No tickets for this period.</div>';return;}
+  document.getElementById('tableBody').innerHTML=`<table><thead><tr><th>Ticket</th><th>Agent</th><th>Month</th><th>Score</th><th>%</th><th>Grade</th><th>MFR</th></tr></thead><tbody>${[...tickets].reverse().map(t=>`<tr><td><span class="tid">${t.id}</span></td><td>${t.agent.split(' ')[0]}</td><td>${t.month}</td><td>${t.total}/${t.max}</td><td>${t.pct}%</td><td><span class="grade-chip" style="background:${gradeColor(t.pct)}"></span></td><td style="color:var(--text-3)">${t.mfr?'Yes':'No'}</td></tr>`).join('')}</tbody></table>`;
+}
+
+render();
+</script>
+</body>
+</html>
